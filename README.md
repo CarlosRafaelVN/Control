@@ -10,7 +10,7 @@ Tienda de calzado construida con React y Vite.
 - `src/components/home`: secciones de la página de inicio.
 - `src/features/catalog`: API, normalización, filtros y vista de catálogo.
 - `src/features/cart`: estado y componentes del carrito.
-- `src/data`: contenido estático de la tienda.
+- `src/data`: contenido estático de la tienda, incluido el catálogo y las fichas de productos.
 - `src/utils`: utilidades compartidas, como el formato de precios.
 
 ## Desarrollo

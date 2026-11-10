@@ -3,11 +3,7 @@ import SiteHeader from '../components/layout/SiteHeader.jsx';
 import SiteFooter from '../components/layout/SiteFooter.jsx';
 import WhatsAppLink from '../components/layout/WhatsAppLink.jsx';
 import { useCarrito } from '../features/cart/useCarrito.js';
-import {
-  obtenerDetalleProducto,
-  obtenerDisponibilidad,
-  obtenerRecomendaciones,
-} from '../features/product/productApi.js';
+import { STATIC_PRODUCT_DETAILS } from '../data/staticProducts.js';
 import { formatPrice } from '../utils/formatPrice.js';
 
 const SIZE_SYSTEMS = ['US', 'EU', 'CM'];
@@ -29,11 +25,6 @@ function plainText(value) {
     .replace(/&amp;/g, '&')
     .replace(/\s+/g, ' ')
     .trim();
-}
-
-function getLocations(data) {
-  if (Array.isArray(data)) return data;
-  return data?.locations ?? data?.stores ?? data?.items ?? [];
 }
 
 function imageUrl(product) {
@@ -312,39 +303,6 @@ function ProductHelp({ productName }) {
   );
 }
 
-function LocationList({ availability, loading, error }) {
-  const [expanded, setExpanded] = useState(true);
-
-  return (
-    <section className="product-locations">
-      <p className="product-locations__status">
-        <span aria-hidden="true">✓</span>
-        <strong>{loading ? 'Consultando disponibilidad' : error ? 'No se pudo consultar la disponibilidad' : `Disponible en ${availability.length} tiendas`}</strong>
-        {!loading && !error && ' y en la tienda en línea'}
-      </p>
-      {error && <p className="product-inline-error">{error}</p>}
-      {!loading && !error && (
-        <>
-          <button type="button" className="product-locations__toggle" onClick={() => setExpanded((value) => !value)}>
-            {expanded ? 'Ocultar tiendas' : 'Ver tiendas'}
-          </button>
-          {expanded && (
-            <ul>
-              {availability.map((location) => (
-                <li key={`${location.name}-${location.phone}`}>
-                  <span>{location.name}</span>
-                  {location.phone && <a href={`tel:${location.phone}`}>{location.phone}</a>}
-                  {location.directionsUrl && <a href={location.directionsUrl} target="_blank" rel="noreferrer" aria-label={`Ver ubicación de ${location.name}`}>⌖</a>}
-                </li>
-              ))}
-            </ul>
-          )}
-        </>
-      )}
-    </section>
-  );
-}
-
 function RecommendationList({ items, loading, error, onAdd }) {
   if (loading) return <p className="product-muted">Cargando recomendaciones…</p>;
   if (error) return <p className="product-inline-error">{error}</p>;
@@ -375,55 +333,53 @@ export default function ProductPage() {
   const referenceCode = query.get('referenceCode') ?? '';
   const initialColorCode = query.get('colorCode') ?? '';
   const missingProductCode = !referenceCode || !initialColorCode;
+  const initialProduct = STATIC_PRODUCT_DETAILS.find(
+    (item) => item.referenceCode === referenceCode && item.colorCode === initialColorCode,
+  );
   const [colorCode, setColorCode] = useState(initialColorCode);
-  const [detail, setDetail] = useState(null);
-  const [loading, setLoading] = useState(!missingProductCode);
-  const [error, setError] = useState('');
-  const [selectedSize, setSelectedSize] = useState('');
+  const [detail, setDetail] = useState(initialProduct?.detalle ?? null);
+  const [selectedSize, setSelectedSize] = useState(() => {
+    const firstAvailable = initialProduct?.detalle.products.find((item) => item.stock > 0);
+    return firstAvailable ? String(firstAvailable.externalId) : '';
+  });
   const [sizeSystem, setSizeSystem] = useState('US');
   const [quantity, setQuantity] = useState(1);
-  const [availabilityResult, setAvailabilityResult] = useState(null);
-  const [recommendationResult, setRecommendationResult] = useState(null);
   const [favorite, setFavorite] = useState(false);
   const [feedback, setFeedback] = useState('');
   const [recentProducts] = useState(readRecentProducts);
   const { agregar } = useCarrito();
+  const loading = false;
+  const error = !missingProductCode && !detail
+    ? 'No encontramos este producto en el catálogo estático.'
+    : '';
 
-  useEffect(() => {
-    if (missingProductCode) return undefined;
-
-    const controller = new AbortController();
-    obtenerDetalleProducto(referenceCode, colorCode, controller.signal)
-      .then((data) => {
-        if (!Array.isArray(data.products) || data.products.length === 0) {
-          throw new Error('No encontramos este producto o no tiene tallas disponibles.');
-        }
-        setDetail(data);
-        const firstAvailable = data.products.find((item) => item.stock > 0) ?? data.products[0];
-        setSelectedSize(String(firstAvailable.externalId));
-      })
-      .catch((requestError) => {
-        if (requestError.name !== 'AbortError') setError(requestError.message);
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
-      });
-
-    return () => controller.abort();
-  }, [referenceCode, colorCode, missingProductCode]);
-
-  const products = detail?.products ?? [];
+  const products = useMemo(
+    () => (detail?.products ?? []).map((item) => ({
+      ...detail.product,
+      ...item,
+    })),
+    [detail],
+  );
   const product = products[0];
   const selectedProduct = products.find((item) => String(item.externalId) === selectedSize) ?? product;
   const productName = product?.title ?? 'Detalle del producto';
   const images = useMemo(
-    () => (detail?.images ?? [])
-      .filter((image) => image?.url)
-      .slice()
-      .sort((a, b) => Number(a.position ?? 0) - Number(b.position ?? 0)),
-    [detail?.images],
+    () => {
+      const selectedColorProduct = STATIC_PRODUCT_DETAILS.find(
+        (item) => item.referenceCode === referenceCode && item.colorCode === colorCode,
+      );
+      return (selectedColorProduct?.imagenes ?? []).map((url, position) => ({ url, position }));
+    },
+    [colorCode, referenceCode],
   );
-  const colors = detail?.colorVariations ?? [];
+  const colors = STATIC_PRODUCT_DETAILS
+    .filter((item) => item.referenceCode === referenceCode)
+    .map((item) => ({
+      colorCode: item.colorCode,
+      color: item.detalle.product.color ?? item.colorCode,
+      imageUrl: item.imagenes[0],
+      outOfStock: item.detalle.products.every((variant) => variant.stock <= 0),
+    }));
   const sizes = products.filter((item) => item.size);
   if (referenceCode === '10VSOLDSKOOL' && !sizes.some((item) => item.size === '10.50')) {
     sizes.push({
@@ -439,16 +395,15 @@ export default function ProductPage() {
     ? selectedProduct.discountPrice
     : selectedProduct?.price;
   const description = plainText(product?.htmlDescription);
-  const selectedExternalId = selectedProduct?.externalId;
-  const availabilityLoading = Boolean(selectedExternalId && availabilityResult?.externalId !== selectedExternalId);
-  const hasCurrentAvailability = Boolean(
-    availabilityResult && availabilityResult.externalId === selectedExternalId,
-  );
-  const availability = hasCurrentAvailability ? availabilityResult.locations : [];
-  const availabilityError = hasCurrentAvailability ? availabilityResult.error : '';
-  const recommendationsLoading = Boolean(referenceCode && recommendationResult?.referenceCode !== referenceCode);
-  const recommendations = recommendationResult?.referenceCode === referenceCode ? recommendationResult.items : [];
-  const recommendationsError = recommendationResult?.referenceCode === referenceCode ? recommendationResult.error : '';
+  const recommendations = STATIC_PRODUCT_DETAILS
+    .filter((item) => item.genero === product?.gender && item.id !== `${referenceCode}-${colorCode}`)
+    .slice(0, 4)
+    .map((item) => ({
+      ...item.detalle.product,
+      ...item.detalle.products[0],
+    }));
+  const recommendationsLoading = false;
+  const recommendationsError = '';
 
   const recentItems = useMemo(() => {
     if (!product || !selectedProduct || !images.length) return recentProducts;
@@ -480,45 +435,16 @@ export default function ProductPage() {
     }
   }, [images, product, recentItems, selectedProduct]);
 
-  useEffect(() => {
-    if (!selectedExternalId) return undefined;
-    const controller = new AbortController();
-    obtenerDisponibilidad(selectedExternalId, controller.signal)
-      .then((data) => setAvailabilityResult({
-        externalId: selectedExternalId,
-        locations: getLocations(data),
-        error: '',
-      }))
-      .catch((requestError) => {
-        if (requestError.name !== 'AbortError') {
-          setAvailabilityResult({ externalId: selectedExternalId, locations: [], error: requestError.message });
-        }
-      });
-    return () => controller.abort();
-  }, [selectedExternalId]);
-
-  useEffect(() => {
-    if (!referenceCode) return undefined;
-    const controller = new AbortController();
-    obtenerRecomendaciones(referenceCode, controller.signal)
-      .then((data) => setRecommendationResult({
-        referenceCode,
-        items: Array.isArray(data.items) ? data.items : [],
-        error: '',
-      }))
-      .catch((requestError) => {
-        if (requestError.name !== 'AbortError') {
-          setRecommendationResult({ referenceCode, items: [], error: requestError.message });
-        }
-      });
-    return () => controller.abort();
-  }, [referenceCode]);
-
   const changeColor = (nextColorCode) => {
-    setLoading(true);
-    setError('');
-    setDetail(null);
-    setSelectedSize('');
+    const nextProduct = STATIC_PRODUCT_DETAILS.find(
+      (item) => item.referenceCode === referenceCode && item.colorCode === nextColorCode,
+    );
+    if (!nextProduct) return;
+
+    setDetail(nextProduct.detalle);
+    const firstAvailable = nextProduct.detalle.products.find((item) => item.stock > 0);
+    setSelectedSize(firstAvailable ? String(firstAvailable.externalId) : '');
+    setQuantity(1);
     setColorCode(nextColorCode);
     const nextQuery = new URLSearchParams(window.location.search);
     nextQuery.set('colorCode', nextColorCode);
@@ -674,7 +600,12 @@ export default function ProductPage() {
               {feedback && <p className="product-feedback" role="status">{feedback}</p>}
 
               <TrustMarks />
-              <LocationList availability={availability} loading={availabilityLoading} error={availabilityError} />
+              <section className="product-locations">
+                <p className="product-locations__status">
+                  <span aria-hidden="true">✓</span>
+                  <strong>Disponibilidad en tiendas no incluida en esta ficha estática.</strong>
+                </p>
+              </section>
 
               <div className="product-accordions">
                 <details>

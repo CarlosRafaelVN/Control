@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { obtenerRecomendaciones } from '../../features/product/productApi.js';
+import { useEffect } from 'react';
 import { useCarrito } from '../../features/cart/useCarrito.js';
+import { STATIC_PRODUCTS } from '../../data/staticProducts.js';
 import { formatPrice } from '../../utils/formatPrice.js';
 
 function getUpsellProduct(item) {
@@ -34,25 +34,15 @@ export default function CartDrawer() {
     isCartOpen,
     closeCart,
   } = useCarrito();
-  const [recommendation, setRecommendation] = useState({ referenceCode: '', items: [], error: '' });
   const referenceCode = items.find((item) => item.referenceCode)?.referenceCode ?? '';
-
-  useEffect(() => {
-    if (!isCartOpen || !referenceCode || recommendation.referenceCode === referenceCode) return undefined;
-    const controller = new AbortController();
-    obtenerRecomendaciones(referenceCode, controller.signal)
-      .then((data) => setRecommendation({
-        referenceCode,
-        items: Array.isArray(data.items) ? data.items.slice(0, 3) : [],
-        error: '',
-      }))
-      .catch((error) => {
-        if (error.name !== 'AbortError') {
-          setRecommendation({ referenceCode, items: [], error: error.message });
-        }
-      });
-    return () => controller.abort();
-  }, [isCartOpen, recommendation.referenceCode, referenceCode]);
+  const gender = items.find((item) => item.genero)?.genero;
+  const recommendations = STATIC_PRODUCTS
+    .filter((product) => product.referenceCode !== referenceCode && (!gender || product.genero === gender))
+    .slice(0, 3)
+    .map((product) => getUpsellProduct({
+      ...product.detalle.product,
+      ...product.detalle.products[0],
+    }));
 
   useEffect(() => {
     if (!isCartOpen) return undefined;
@@ -121,23 +111,15 @@ export default function CartDrawer() {
               {referenceCode && (
                 <section className="cart-drawer__upsells" aria-label="Productos para sumar al pedido">
                   <h3>Sumale a tu pedido</h3>
-                  {recommendation.referenceCode !== referenceCode && <p role="status">Buscando recomendaciones…</p>}
-                  {recommendation.referenceCode === referenceCode && recommendation.error && (
-                    <p className="cart-drawer__error">{recommendation.error}</p>
-                  )}
-                  {recommendation.referenceCode === referenceCode && !recommendation.error
-                    && recommendation.items.map((item, index) => {
-                      const product = getUpsellProduct(item);
-                      return (
-                        <article className="cart-drawer__upsell" key={`${product.id}-${index}`}>
-                          {product.imagen
-                            ? <img src={product.imagen} alt="" loading="lazy" />
-                            : <span className="cart-drawer__image-placeholder" />}
-                          <div><strong>{product.nombre}</strong><b>{formatPrice(product.precio)}</b></div>
-                          <button type="button" onClick={() => agregar(product, product.talla)}>Agregar</button>
-                        </article>
-                      );
-                    })}
+                  {recommendations.map((product, index) => (
+                    <article className="cart-drawer__upsell" key={`${product.id}-${index}`}>
+                      {product.imagen
+                        ? <img src={product.imagen} alt="" loading="lazy" />
+                        : <span className="cart-drawer__image-placeholder" />}
+                      <div><strong>{product.nombre}</strong><b>{formatPrice(product.precio)}</b></div>
+                      <button type="button" onClick={() => agregar(product, product.talla)}>Agregar</button>
+                    </article>
+                  ))}
                 </section>
               )}
             </>

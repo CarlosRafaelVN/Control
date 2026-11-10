@@ -1,15 +1,51 @@
 import { useState } from 'react';
 
 export const catalogCategories = [
-  { name: 'Tenis', family: 'TENIS' },
-  { name: 'Zapatos y botas', families: ['BOTAS', 'ZAPATOS'] },
-  { name: 'Sandalias', families: ['SANDALIA', 'SANDALIAS'] },
-  { name: 'Mochilas y bolsos', families: ['MOCHILA', 'MALETIN', 'BOLSO'] },
-  { name: 'Gorras', families: ['GORRA', 'HEADWEAR'] },
-  { name: 'Medias', families: ['MEDIA', 'MEDIAS'] },
-  { name: 'Vasos y botellas', families: ['VASO', 'BOTELLA', 'TAZA', 'PORTALATA'] },
-  { name: 'Billeteras', families: ['BILLETERA'] },
-  { name: 'Ropa', families: ['ROPA', 'ABRIGOS'] },
+  {
+    name: 'Tenis',
+    family: 'TENIS',
+    image: 'https://cms.blumewebsites.com/cachosasociacion/products/10NBM1906REHD-HARBOR GREY/10NBM1906R_EHD-HARBOR GREY_1.webp?v=a937751c282b4da391d1d19bb0452cb9',
+  },
+  {
+    name: 'Zapatos y botas',
+    families: ['BOTAS', 'ZAPATOS'],
+    image: 'https://cms.blumewebsites.com/cachosasociacion/products/20TM10001214-BROWN/20TM10001_214-BROWN_1.jpg?v=73e53aacd33c4fea8cd6e4939bcc0965',
+  },
+  {
+    name: 'Sandalias',
+    families: ['SANDALIA', 'SANDALIAS'],
+    image: 'https://cms.blumewebsites.com/cachos/products/30BI51793BLACK/30BI51793_BLACK_1.jpg?v=133193301656768161',
+  },
+  {
+    name: 'Mochilas y bolsos',
+    families: ['MOCHILA', 'MALETIN', 'BOLSO'],
+    image: 'https://cms.blumewebsites.com/cachosasociacion/products/75QSEQYBA03202GRT0-FOREST/75QSEQYBA03202_GRT0-FOREST_1.jpg?v=619d1dad5e364de8878923e6a96ed6d5',
+  },
+  {
+    name: 'Gorras',
+    families: ['GORRA', 'HEADWEAR'],
+    image: 'https://cms.blumewebsites.com/cachosasociacion/products/70QSEQYHA03506KVJ0-BLACK/70QSEQYHA03506_KVJ0-BLACK_1.jpg?v=619d1dad5e364de8878923e6a96ed6d5',
+  },
+  {
+    name: 'Medias',
+    families: ['MEDIA', 'MEDIAS'],
+    image: 'https://cms.blumewebsites.com/cachosasociacion/products/71STMW0523VARIOS/71STMW0523_VARIOS_1.webp?v=134133330838306833',
+  },
+  {
+    name: 'Vasos y botellas',
+    families: ['VASO', 'BOTELLA', 'TAZA', 'PORTALATA'],
+    image: 'https://cms.blumewebsites.com/cachosasociacion/products/81NWSXW16GREEN/81NWSXW16_GREEN_1.png?v=75f79290c6324900bde4ce52fc8e99d3',
+  },
+  {
+    name: 'Billeteras',
+    families: ['BILLETERA'],
+    image: 'https://cms.blumewebsites.com/cachosasociacion/products/73QSAQYAA03358CTF0-JAVA/73QSAQYAA03358_CTF0-JAVA_1.jpg?v=76dd6f42b15c487d8d80fd546cdd47a9',
+  },
+  {
+    name: 'Ropa',
+    families: ['ROPA', 'ABRIGOS'],
+    image: 'https://cms.blumewebsites.com/cachosasociacion/products/57ELMELYJK00269FBK-FLINT BLACK/57ELMELYJK00269_FBK-FLINT BLACK_1.jpg?v=9d39f3195bb64e2f9e9859bc02eb345c',
+  },
 ];
 
 function CategoryImage({ src, name }) {
@@ -116,16 +152,7 @@ function CategoryImage({ src, name }) {
   );
 }
 
-export default function CategoryExplorer({ products = [] }) {
-  const categoryImage = (category) => {
-    const match = products.find((product) => {
-      const family = String(product.crudo?.family || '').toUpperCase();
-      const text = `${product.nombre} ${product.descripcion}`.toUpperCase();
-      const families = category.families ?? (category.family ? [category.family] : []);
-      return families.some((name) => family.includes(name) || text.includes(name));
-    });
-    return match?.imagenes?.[0];
-  };
+export default function CategoryExplorer() {
   return (
     <section className="catalog-categories" aria-labelledby="categories-title">
       <div className="catalog-categories__header">
@@ -136,7 +163,7 @@ export default function CategoryExplorer({ products = [] }) {
         {catalogCategories.map((category) => (
           <a className="catalog-category" href={`/products?category=${encodeURIComponent(category.name)}`} key={category.name}>
             <span className="catalog-category__image">
-              <CategoryImage src={categoryImage(category)} name={category.name} />
+              <CategoryImage src={category.image} name={category.name} />
             </span>
             <strong>{category.name}</strong>
           </a>

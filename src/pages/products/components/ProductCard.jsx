@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { useCarrito } from '../../../features/cart/useCarrito.js';
-import { obtenerDetalleProducto } from '../../../features/product/productApi.js';
 
 const formatPrice = (value) => new Intl.NumberFormat('es-CR', {
   style: 'currency', currency: 'CRC', maximumFractionDigits: 0,
@@ -13,16 +12,22 @@ const identifierValue = (value) => {
 
 export default function ProductCard({ product }) {
   const [sizeModalOpen, setSizeModalOpen] = useState(false);
-  const [availableSizes, setAvailableSizes] = useState([]);
-  const [sizesLoading, setSizesLoading] = useState(false);
-  const [sizesError, setSizesError] = useState('');
   const { agregar, openCart } = useCarrito();
   const raw = product.crudo ?? {};
+  const availableSizes = (product.detalle?.products ?? [])
+    .filter((variant) => Number(variant.stock) > 0 && variant.availabilityStatus !== 'out_of_stock')
+    .map((variant) => ({
+      externalId: variant.externalId,
+      size: String(variant.size ?? ''),
+      stock: Number(variant.stock),
+    }))
+    .filter((variant) => variant.size);
   const referenceCode = identifierValue(product.referenceCode ?? raw.referenceCode ?? raw.reference);
   const colorCode = identifierValue(product.colorCode ?? raw.colorCode ?? raw.color);
   const detailUrl = referenceCode && colorCode
     ? `/product?${new URLSearchParams({ referenceCode: String(referenceCode), colorCode: String(colorCode) })}`
     : '/product';
+
   useEffect(() => {
     if (!sizeModalOpen) return undefined;
     const closeOnEscape = (event) => {
@@ -30,38 +35,11 @@ export default function ProductCard({ product }) {
     };
     document.addEventListener('keydown', closeOnEscape);
     document.body.classList.add('product-size-modal-open');
-
-    if (!referenceCode || !colorCode) return () => {
-      document.removeEventListener('keydown', closeOnEscape);
-      document.body.classList.remove('product-size-modal-open');
-    };
-
-    const controller = new AbortController();
-    obtenerDetalleProducto(String(referenceCode), String(colorCode), controller.signal)
-      .then((detail) => {
-        const sizes = (detail.products ?? [])
-          .filter((variant) => Number(variant.stock) > 0 && variant.availabilityStatus !== 'out_of_stock')
-          .map((variant) => ({
-            externalId: variant.externalId,
-            size: String(variant.size ?? ''),
-            stock: Number(variant.stock),
-          }))
-          .filter((variant) => variant.size);
-        setAvailableSizes(sizes);
-      })
-      .catch((error) => {
-        if (error.name !== 'AbortError') setSizesError(error.message);
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setSizesLoading(false);
-      });
-
     return () => {
-      controller.abort();
       document.removeEventListener('keydown', closeOnEscape);
       document.body.classList.remove('product-size-modal-open');
     };
-  }, [colorCode, referenceCode, sizeModalOpen]);
+  }, [sizeModalOpen]);
 
   const addWithSize = (variant) => {
     agregar({
@@ -80,9 +58,6 @@ export default function ProductCard({ product }) {
   const openSizeModal = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    setAvailableSizes([]);
-    setSizesError('');
-    setSizesLoading(Boolean(referenceCode && colorCode));
     setSizeModalOpen(true);
   };
 
@@ -121,25 +96,13 @@ export default function ProductCard({ product }) {
               <h3 id="size-modal-title">{product.nombre}</h3>
             </div>
             <p className="product-size-modal__label">Elija su talla</p>
-            {sizesLoading && <p className="product-size-modal__empty" role="status">Cargando tallas disponibles…</p>}
-            {(!referenceCode || !colorCode) && (
-              <p className="product-size-modal__error" role="alert">
-                No se pudieron identificar las variantes de este producto.
-              </p>
-            )}
-            {sizesError && (
-              <p className="product-size-modal__error" role="alert">
-                {sizesError}
-                <button type="button" onClick={() => setSizeModalOpen(false)}>Cerrar</button>
-              </p>
-            )}
-            {referenceCode && colorCode && !sizesLoading && !sizesError && availableSizes.length ? (
+            {availableSizes.length ? (
               <div className="product-size-modal__sizes">
                 {availableSizes.map((variant) => (
                   <button type="button" key={variant.externalId ?? variant.size} onClick={() => addWithSize(variant)}>{variant.size}</button>
                 ))}
               </div>
-            ) : referenceCode && colorCode && !sizesLoading && !sizesError && (
+            ) : (
               <p className="product-size-modal__empty">Este producto no tiene tallas disponibles.</p>
             )}
           </section>

@@ -7,15 +7,11 @@ import CatalogFilters from './components/CatalogFilters.jsx';
 import CategoryExplorer, { catalogCategories } from './components/CategoryExplorer.jsx';
 import CatalogPromotions from './components/CatalogPromotions.jsx';
 import ProductCard from './components/ProductCard.jsx';
-import { obtenerCalzado } from '../../features/catalog/catalogApi.js';
-import { extraerProductos, normalizarProducto } from '../../features/catalog/normalizeProduct.js';
+import { STATIC_PRODUCTS } from '../../data/staticProducts.js';
 import '../../features/catalog/catalog.css';
 
 
 export default function ProductCatalogPage() {
-  const [rawProducts, setRawProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const catalogParams = new URLSearchParams(window.location.search);
   const [query, setQuery] = useState(() => catalogParams.get('brand') || '');
   const [category, setCategory] = useState(() => catalogParams.get('category') || '');
@@ -25,16 +21,9 @@ export default function ProductCatalogPage() {
   const [size, setSize] = useState('');
   const [gender, setGender] = useState(() => catalogParams.get('gender') || (catalogParams.get('category') === 'Niños' ? 'ninos' : ''));
   const [visibleCount, setVisibleCount] = useState(16);
+  const products = STATIC_PRODUCTS;
 
-  useEffect(() => {
-    obtenerCalzado()
-      .then((data) => setRawProducts(extraerProductos(data)))
-      .catch((requestError) => setError(requestError.message))
-      .finally(() => setLoading(false));
-  }, []);
-
-  const products = useMemo(() => rawProducts.map((product, index) => normalizarProducto(product, index)), [rawProducts]);
-  const filteredProducts = useMemo(() => products.filter((product) => {
+  const filteredProducts = useMemo(() => STATIC_PRODUCTS.filter((product) => {
     const brandMatch = !query || String(product.marca || '').toUpperCase() === query.toUpperCase();
     const sizeMatch = !size || product.tallas.some((item) => String(item) === String(size));
     const normalizeGender = (value) => String(value ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase();
@@ -53,7 +42,7 @@ export default function ProductCatalogPage() {
     if (sort === 'price-low') return (a.precio ?? 0) - (b.precio ?? 0);
     if (sort === 'price-high') return (b.precio ?? 0) - (a.precio ?? 0);
     return 0;
-  }), [products, query, search, sort, size, gender, category, offersOnly]);
+  }), [query, search, sort, size, gender, category, offersOnly]);
 
   useEffect(() => {
     setVisibleCount(16);
@@ -80,7 +69,7 @@ export default function ProductCatalogPage() {
       <SiteHeader />
       <main>
         <CatalogPromotions />
-        <CategoryExplorer products={products} />
+        <CategoryExplorer />
         <section className="products-page">
           <CatalogBreadcrumb brand={query} />
           <CatalogFilters
@@ -96,13 +85,11 @@ export default function ProductCatalogPage() {
             resetFilters={resetFilters}
           />
           <div className="products-results" aria-live="polite">
-            {loading && <div className="products-state">Cargando productos…</div>}
-            {error && <div className="products-state products-state--error">No pudimos cargar el catálogo. {error}</div>}
-            {!loading && !error && filteredProducts.length === 0 && <div className="products-state">No encontramos productos con estos filtros.</div>}
+            {filteredProducts.length === 0 && <div className="products-state">No encontramos productos con estos filtros.</div>}
             <div className="products-grid">
               {filteredProducts.slice(0, visibleCount).map((product) => <ProductCard key={product.id} product={product} />)}
             </div>
-            {!loading && !error && filteredProducts.length > 0 && (
+            {filteredProducts.length > 0 && (
               <div className="catalog-pagination">
                 <p className="catalog-pagination__count" aria-live="polite">
                   Mostrando {Math.min(visibleCount, filteredProducts.length)} de {filteredProducts.length}
