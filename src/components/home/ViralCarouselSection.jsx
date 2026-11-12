@@ -33,6 +33,9 @@ export default function ViralCarouselSection({ products }) {
               >
                 <div className="viral-carousel__media">
                   <video
+                    ref={(video) => {
+                      if (video) video.volume = 0.05;
+                    }}
                     autoPlay
                     loop
                     muted={soundEnabledId !== product.name}
