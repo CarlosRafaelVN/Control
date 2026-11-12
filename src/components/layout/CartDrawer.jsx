@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useCarrito } from '../../features/cart/useCarrito.js';
 import { STATIC_PRODUCTS } from '../../data/staticProducts.js';
 import { formatPrice } from '../../utils/formatPrice.js';
@@ -33,7 +33,10 @@ export default function CartDrawer() {
     agregar,
     isCartOpen,
     closeCart,
+    vaciar,
   } = useCarrito();
+  const [paymentComplete, setPaymentComplete] = useState(false);
+  const paymentConfirmationButton = useRef(null);
   const referenceCode = items.find((item) => item.referenceCode)?.referenceCode ?? '';
   const gender = items.find((item) => item.genero)?.genero;
   const recommendations = STATIC_PRODUCTS
@@ -44,10 +47,19 @@ export default function CartDrawer() {
       ...product.detalle.products[0],
     }));
 
+  const finishPayment = useCallback(() => {
+    vaciar();
+    setPaymentComplete(false);
+    closeCart();
+  }, [closeCart, vaciar]);
+
   useEffect(() => {
     if (!isCartOpen) return undefined;
     const closeOnEscape = (event) => {
-      if (event.key === 'Escape') closeCart();
+      if (event.key === 'Escape') {
+        if (paymentComplete) finishPayment();
+        else closeCart();
+      }
     };
     const previousOverflow = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
@@ -56,7 +68,11 @@ export default function CartDrawer() {
       document.body.style.overflow = previousOverflow;
       window.removeEventListener('keydown', closeOnEscape);
     };
-  }, [closeCart, isCartOpen]);
+  }, [closeCart, finishPayment, isCartOpen, paymentComplete]);
+
+  useEffect(() => {
+    if (paymentComplete) paymentConfirmationButton.current?.focus();
+  }, [paymentComplete]);
 
   if (!isCartOpen) return null;
 
@@ -68,7 +84,13 @@ export default function CartDrawer() {
         if (event.target === event.currentTarget) closeCart();
       }}
     >
-      <aside className="cart-drawer__panel" role="dialog" aria-modal="true" aria-labelledby="cart-drawer-title">
+      <aside
+        className="cart-drawer__panel"
+        role="dialog"
+        aria-modal={paymentComplete ? undefined : 'true'}
+        aria-hidden={paymentComplete}
+        aria-labelledby="cart-drawer-title"
+      >
         <header className="cart-drawer__header">
           <h2 id="cart-drawer-title">Carrito <span>{cantidadTotal}</span></h2>
           <button type="button" className="cart-drawer__close" aria-label="Cerrar carrito" onClick={closeCart}>×</button>
@@ -130,10 +152,32 @@ export default function CartDrawer() {
           <footer className="cart-drawer__summary">
             <p><span>Total estimado</span><strong>{formatPrice(total)}</strong></p>
             <small>Aranceles e impuestos aplicables incluidos.</small>
-            <a href="https://www.cachoscr.com/checkout">Pagar</a>
+            <button type="button" onClick={() => setPaymentComplete(true)}>Pagar</button>
           </footer>
         )}
       </aside>
+      {paymentComplete && (
+        <div className="payment-confirmation" role="presentation">
+          <section
+            className="payment-confirmation__dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="payment-confirmation-title"
+            aria-describedby="payment-confirmation-message"
+            onKeyDown={(event) => {
+              if (event.key === 'Tab') {
+                event.preventDefault();
+                paymentConfirmationButton.current?.focus();
+              }
+            }}
+          >
+            <div className="payment-confirmation__icon" aria-hidden="true">✓</div>
+            <h2 id="payment-confirmation-title">Pago completado</h2>
+            <p id="payment-confirmation-message">Gracias por tu compra. Tu pedido se procesó correctamente.</p>
+            <button ref={paymentConfirmationButton} type="button" onClick={finishPayment}>Continuar</button>
+          </section>
+        </div>
+      )}
     </div>
   );
 }
