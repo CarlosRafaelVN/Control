@@ -107,7 +107,7 @@ export default function CartDrawer() {
           <h2 id="cart-drawer-title">Carrito <span>{cantidadTotal}</span></h2>
           <button type="button" className="cart-drawer__close" aria-label="Cerrar carrito" onClick={closeCart}>×</button>
         </header>
-        <p className="cart-drawer__login">¿Tiene una cuenta? <a href="https://www.cachoscr.com/s/login">Inicie sesión</a> para pagar más rápido.</p>
+        <p className="cart-drawer__login">¿Tiene una cuenta? <a href={/* https://www.cachoscr.com/s/login */ undefined}>Inicie sesión</a> para pagar más rápido.</p>
 
         <div className="cart-drawer__body">
           {items.length === 0 ? (

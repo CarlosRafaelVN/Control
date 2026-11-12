@@ -149,7 +149,7 @@ export const moreThanShoes = [
     title: 'Lista para la U',
     text: 'Mochilas y bolsos de Dakine, Volcom, New Wave y más para clases, trabajo o playa.',
     link: 'Ver maletines',
-    href: 'https://www.cachoscr.com/products?productType=ACCESORIO&family=MALETIN',
+    // href: 'https://www.cachoscr.com/products?productType=ACCESORIO&family=MALETIN',
     alt: 'Estudiante con mochila Dakine en una biblioteca',
     image:
       'https://cms.blumewebsites.com/cachos/website/ac-maletines.jpg',
@@ -158,7 +158,7 @@ export const moreThanShoes = [
     title: 'Cubrite con estilo',
     text: 'Gorras trucker, snapback y sombreros para el sol de todos los días.',
     link: 'Ver gorras',
-    href: 'https://www.cachoscr.com/products?productType=ACCESORIO&family=GORRA',
+    // href: 'https://www.cachoscr.com/products?productType=ACCESORIO&family=GORRA',
     alt: 'Mujer con gorra trucker Dakine en el desierto',
     image:
       'https://cms.blumewebsites.com/cachos/website/ac-gorras.jpg',
@@ -167,7 +167,7 @@ export const moreThanShoes = [
     title: 'Siempre fría',
     text: 'Vasos y botellas New Wave que mantienen tu bebida helada todo el día.',
     link: 'Ver vasos y botellas',
-    href: 'https://www.cachoscr.com/products?brand=NEW%20WAVE',
+    // href: 'https://www.cachoscr.com/products?brand=NEW%20WAVE',
     alt: 'Peque sonriendo con vasos New Wave sobre los ojos',
     image:
       'https://cms.blumewebsites.com/cachos/website/ac-vasos3.jpg',
@@ -179,37 +179,37 @@ export const lookProducts = [
     name: 'MALETIN MASCULINO QUIKSILVER MOJAVE',
     price: 20900,
     image: 'https://cms.blumewebsites.com/cachosasociacion/products/75QSEQYBA03202CTF0-JAVA/75QSEQYBA03202_CTF0-JAVA_1.jpg?v=109429adb3194c6cb6749f60cb419bac',
-    href: 'https://www.cachoscr.com/product?referenceCode=75QSEQYBA03202&colorCode=CTF0-JAVA',
+    // href: 'https://www.cachoscr.com/product?referenceCode=75QSEQYBA03202&colorCode=CTF0-JAVA',
   },
   {
     name: 'GORRA MASCULINO QUIKSILVER DECADES FOAM',
     price: 14900,
     image: 'https://cms.blumewebsites.com/cachosasociacion/products/70QSEQYHA03506KVJ0-BLACK/70QSEQYHA03506_KVJ0-BLACK_1.jpg?v=619d1dad5e364de8878923e6a96ed6d5',
-    href: 'https://www.cachoscr.com/product?referenceCode=70QSEQYHA03506&colorCode=KVJ0-BLACK',
+    // href: 'https://www.cachoscr.com/product?referenceCode=70QSEQYHA03506&colorCode=KVJ0-BLACK',
   },
   {
     name: 'VASO UNISEX NEW WAVE BIG TRAVEL TUMBLER',
     price: 12900,
     image: 'https://cms.blumewebsites.com/cachosasociacion/products/81NWSXK30TLILAC/81NWSXK30T_LILAC_1.jpg?v=134075491345110066',
-    href: 'https://www.cachoscr.com/product?referenceCode=81NWSXK30T&colorCode=LILAC',
+    // href: 'https://www.cachoscr.com/product?referenceCode=81NWSXK30T&colorCode=LILAC',
   },
   {
     name: 'FAJA MASCULINO ELEMENT LEGACY',
     price: 21900,
     image: 'https://cms.blumewebsites.com/cachosasociacion/products/72ELMELYAA00252CZJ1-BROWN%20LEATHER/72ELMELYAA00252_CZJ1-BROWN%20LEATHER_1.jpg?v=4591485a44944ae298ae20c1d644660d',
-    href: 'https://www.cachoscr.com/product?referenceCode=72ELMELYAA00252&colorCode=CZJ1-BROWN%20LEATHER',
+    // href: 'https://www.cachoscr.com/product?referenceCode=72ELMELYAA00252&colorCode=CZJ1-BROWN%20LEATHER',
   },
   {
     name: 'MALETIN MASCULINO QUIKSILVER PACKED',
     price: 16900,
     image: 'https://cms.blumewebsites.com/cachosasociacion/products/75QSEQYBA03199KVJ0-BLACK/75QSEQYBA03199_KVJ0-BLACK_1.jpg?v=619d1dad5e364de8878923e6a96ed6d5',
-    href: 'https://www.cachoscr.com/product?referenceCode=75QSEQYBA03199&colorCode=KVJ0-BLACK',
+    // href: 'https://www.cachoscr.com/product?referenceCode=75QSEQYBA03199&colorCode=KVJ0-BLACK',
   },
   {
     name: 'GORRA MASCULINO QUIKSILVER DIAMOND',
     price: 14900,
     image: 'https://cms.blumewebsites.com/cachosasociacion/products/70QSEQYHA03451KVJ0-BLACK/70QSEQYHA03451_KVJ0-BLACK_1.jpg?v=619d1dad5e364de8878923e6a96ed6d5',
-    href: 'https://www.cachoscr.com/product?referenceCode=70QSEQYHA03451&colorCode=KVJ0-BLACK',
+    // href: 'https://www.cachoscr.com/product?referenceCode=70QSEQYHA03451&colorCode=KVJ0-BLACK',
   },
 ];
 

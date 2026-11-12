@@ -38,7 +38,7 @@ export default function SiteHeader() {
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M5 3h4l2 5-2.5 1.5a15 15 0 0 0 6 6L16 13l5 2v4c0 1.1-.9 2-2 2C10 20.5 3.5 14 3 5c0-1.1.9-2 2-2Z" /></svg>
             Contacto
           </a>
-          <a className="flex shrink-0 items-center gap-2" href="https://www.cachoscr.com/pages/store-locator">
+          <a className="flex shrink-0 items-center gap-2" href={/* https://www.cachoscr.com/pages/store-locator */ undefined}>
             <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true"><path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0Z" /><circle cx="12" cy="10" r="2.5" /></svg>
             Ubicaciones tiendas
           </a>
@@ -58,7 +58,7 @@ export default function SiteHeader() {
           <button type="button" aria-label="Buscar" className="site-header__icon">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" /><path d="m16 16 5 5" /></svg>
           </button>
-          <a href="https://www.cachoscr.com/s/login" aria-label="Iniciar sesión" className="site-header__icon">
+          <a href={/* https://www.cachoscr.com/s/login */ undefined} aria-label="Iniciar sesión" className="site-header__icon">
             <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.5" /><path d="M5 20c.7-3.1 3.2-5 7-5s6.3 1.9 7 5" /></svg>
           </a>
           <button type="button" aria-label={`Ver carrito, ${cantidadTotal} productos`} className="site-header__icon site-header__cart" onClick={openCart}>

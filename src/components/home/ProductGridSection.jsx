@@ -83,10 +83,10 @@ export default function ProductGridSection({
               />
             ) : (
               <article className="best-sellers__card" key={product.name}>
-                <a className="best-sellers__image-link" href={product.href ?? '#'} aria-label={product.name}>
+                <a className="best-sellers__image-link" href={product.href} aria-label={product.name}>
                   <img src={product.image} alt={product.name} loading="lazy" />
                 </a>
-                <a className="best-sellers__name" href={product.href ?? '#'}>{product.name}</a>
+                <a className="best-sellers__name" href={product.href}>{product.name}</a>
                 <div className="best-sellers__prices">
                   <span>{formatPrice(product.price)}</span>
                   {product.oldPrice && <del>{formatPrice(product.oldPrice)}</del>}
@@ -120,7 +120,7 @@ export default function ProductGridSection({
         </div>
       )}
       {isLook && (
-        <a className="look-section__all" href="https://www.cachoscr.com/catalog?productType=ACCESORIO">
+        <a className="look-section__all" href={/* https://www.cachoscr.com/catalog?productType=ACCESORIO */ undefined}>
           Ver todos los accesorios <span aria-hidden="true">→</span>
         </a>
       )}

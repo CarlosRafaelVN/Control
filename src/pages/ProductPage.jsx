@@ -292,7 +292,7 @@ function ProductHelp({ productName }) {
         </span>
         <span className="product-help__arrow" aria-hidden="true">→</span>
       </a>
-      <a className="product-help__card" href="https://www.cachoscr.com/s/store-locations" target="_blank" rel="noreferrer">
+      <a className="product-help__card" href={/* https://www.cachoscr.com/s/store-locations */ undefined} target="_blank" rel="noreferrer">
         <span>
           <strong>Probalo en tienda</strong>
           <span>Mirá nuestros puntos de venta</span>
