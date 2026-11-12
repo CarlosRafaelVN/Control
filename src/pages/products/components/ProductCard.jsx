@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useCarrito } from '../../../features/cart/useCarrito.js';
+import '../../../features/catalog/catalog.css';
 
 const formatPrice = (value) => new Intl.NumberFormat('es-CR', {
   style: 'currency', currency: 'CRC', maximumFractionDigits: 0,
@@ -10,7 +11,7 @@ const identifierValue = (value) => {
   return value?.code ?? value?.value ?? value?.name ?? null;
 };
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, className = '' }) {
   const [sizeModalOpen, setSizeModalOpen] = useState(false);
   const { agregar, openCart } = useCarrito();
   const raw = product.crudo ?? {};
@@ -63,7 +64,7 @@ export default function ProductCard({ product }) {
 
   return (
     <>
-      <article className="products-card">
+      <article className={`products-card ${className}`.trim()}>
         <div className="products-card__media-wrap">
           <a className="products-card__media" href={detailUrl} aria-label={`Ver ${product.nombre}`}>
             {product.imagenes[0]
@@ -71,8 +72,11 @@ export default function ProductCard({ product }) {
               : <span className="products-card__placeholder">{product.nombre}</span>}
             {product.precioOriginal && <span className="products-card__sale">Oferta</span>}
           </a>
-          <button type="button" className="products-card__quick-view" onClick={openSizeModal} aria-label={`Agregar ${product.nombre} al carrito`}>
-            <svg viewBox="0 0 24 24"><path d="M5 8h14l-1 12H6L5 8Zm4 0V6a3 3 0 0 1 6 0v2" /></svg>
+          <button type="button" className="products-card__quick-view" onClick={openSizeModal} aria-label={`Agregar ${product.nombre} al carrito`} aria-expanded={sizeModalOpen}>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M15.75 7.5V6a3.75 3.75 0 1 0-7.5 0v1.5m11.356 1.007 1.263 12A1.125 1.125 0 0 1 19.75 21.75H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007Z" />
+              <path d="M12 11.25v6m3-3h-6" />
+            </svg>
           </button>
         </div>
         <a className="products-card__body" href={detailUrl} aria-label={`Ver detalles de ${product.nombre}`}>

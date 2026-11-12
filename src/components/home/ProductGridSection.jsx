@@ -1,5 +1,7 @@
 import { useRef } from 'react';
 import { formatPrice } from '../../utils/formatPrice.js';
+import ProductCard from '../../pages/products/components/ProductCard.jsx';
+import { STATIC_HOME_PRODUCTS } from '../../data/staticProducts.js';
 
 const columnClasses = {
   3: 'xl:grid-cols-3',
@@ -17,6 +19,29 @@ export default function ProductGridSection({
   const isBestSellers = title === 'Lo más buscado';
   const isLook = variant === 'look';
   const isCarousel = isBestSellers || isLook;
+  const normalizeBestSeller = (product) => {
+    const staticProduct = STATIC_HOME_PRODUCTS.find((item) => item.nombre === product.name);
+    if (staticProduct) {
+      return {
+        ...staticProduct,
+        precio: product.price,
+        precioOriginal: product.oldPrice ?? staticProduct.precioOriginal,
+      };
+    }
+
+    const url = new URL(product.href ?? '/product', window.location.origin);
+    return {
+      id: product.name,
+      referenceCode: url.searchParams.get('referenceCode'),
+      colorCode: url.searchParams.get('colorCode'),
+      nombre: product.name,
+      marca: product.brand,
+      precio: product.price,
+      precioOriginal: product.oldPrice ?? null,
+      imagenes: product.image ? [product.image] : [],
+      detalle: { products: [] },
+    };
+  };
 
   const headerClass = isCarousel
     ? 'best-sellers__header'
@@ -50,7 +75,13 @@ export default function ProductGridSection({
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
           </button>
           <div className="best-sellers__track" ref={bestSellersTrack}>
-            {products.map((product) => (
+            {products.map((product) => isBestSellers ? (
+              <ProductCard
+                key={product.name}
+                className="best-sellers__card"
+                product={normalizeBestSeller(product)}
+              />
+            ) : (
               <article className="best-sellers__card" key={product.name}>
                 <a className="best-sellers__image-link" href={product.href ?? '#'} aria-label={product.name}>
                   <img src={product.image} alt={product.name} loading="lazy" />
