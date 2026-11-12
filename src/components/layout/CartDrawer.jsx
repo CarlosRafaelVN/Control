@@ -47,6 +47,16 @@ export default function CartDrawer() {
       ...product.detalle.products[0],
     }));
 
+  const confirmPayment = () => {
+    window.mdq = window.mdq || [];
+    window.mdq.push(['track', 'Purchase', {
+      revenue: total,
+      quantity: cantidadTotal,
+      currency: 'CRC',
+    }]);
+    setPaymentComplete(true);
+  };
+
   const finishPayment = useCallback(() => {
     vaciar();
     setPaymentComplete(false);
@@ -152,7 +162,7 @@ export default function CartDrawer() {
           <footer className="cart-drawer__summary">
             <p><span>Total estimado</span><strong>{formatPrice(total)}</strong></p>
             <small>Aranceles e impuestos aplicables incluidos.</small>
-            <button type="button" onClick={() => setPaymentComplete(true)}>Pagar</button>
+            <button type="button" onClick={confirmPayment}>Pagar</button>
           </footer>
         )}
       </aside>
