@@ -61,6 +61,8 @@ export default function ProductCard({ product, className = '' }) {
   const openSizeModal = (event) => {
     event.preventDefault();
     event.stopPropagation();
+    window.mdq = window.mdq || [];
+    window.mdq.push(['track', 'button_click_add_to_card']);
     setSizeModalOpen(true);
   };
 
